@@ -56,9 +56,9 @@ Easy way to use validator into your project  :
 
 ```
  val validator = Validation.create(context.get()).apply {
-isEmpty(yourStringValue,YourStringErrorMessage)
-areEqual(yourStringValue1, yourStringValue2 ,YourStringErrorMessage)
-areNotEqual(yourStringValue1, yourStringValue2 ,YourStringErrorMessage)
+	isEmpty(yourStringValue,YourStringErrorMessage)
+	areEqual(yourStringValue1, yourStringValue2 ,YourStringErrorMessage)
+	areNotEqual(yourStringValue1, yourStringValue2 ,YourStringErrorMessage)
 }
 
 if (validator.isValid()) {
@@ -69,4 +69,4 @@ if (validator.isValid()) {
 
 ### Available Features
 
-To check all the feature and functions available for KBEXTENSIONS, please visit the [here](http://www.dropwizard.io/1.0.2/docs/).
+To check all the feature and functions available for KBEXTENSIONS, please visit the [here](https://sites.google.com/view/kbextensions).
