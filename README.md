@@ -70,3 +70,7 @@ if (validator.isValid()) {
 }
 
 ```
+
+### Available Features
+
+To check all the feature and functions available for KBEXTENSIONS, please visit the [here](http://www.dropwizard.io/1.0.2/docs/).
