@@ -1,0 +1,3 @@
+rootProject.name = "KBExtensions"
+include ':app'
+include ':kbextensions'
