@@ -67,19 +67,16 @@ fun Context.showAlertDialog(
     positiveButton: String,
     cancelable: Boolean
 ) {
-
     Handler(Looper.getMainLooper()).post {
-        if (message.isNotEmpty()) {
+        message.takeIf { it.isNotEmpty() }?.let {
             val dialogBuilder = AlertDialog.Builder(this)
-                .setMessage(message)
+                .setMessage(it)
                 .setCancelable(cancelable)
                 .setPositiveButton(
                     positiveButton
                 ) { arg0, _ -> arg0.dismiss() }
-
             val alert = dialogBuilder.create()
             alert.setTitle(title)
-
             alert.show()
             val posButton = alert.getButton(DialogInterface.BUTTON_POSITIVE)
             with(posButton) { setTextColor(Color.RED) }

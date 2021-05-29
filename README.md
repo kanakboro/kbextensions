@@ -1,4 +1,4 @@
-# KBEXTENSIONS  TAG: 1.1.1
+# KBEXTENSIONS  TAG: 1.1.2
 
 KBEXTENSIONS is an android library which provides an easy way to use collections of common functions and functionalities which we use in every projects and write the same code again and again.
 
@@ -46,9 +46,9 @@ YourTextView.setMarque()
 Convert date from one format to another  :
 
 ```
-getFormattedDate("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'","dd-MM-yyyy")
+getFormattedDate("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'","dd-MM-yyyy",Locale.getDefault(), TimeZone.getTimeZone("UTC"))
 
-YourMilliDate.getDateFromMilli("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+YourMilliDate.getDateFromMilli("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",Locale.getDefault(), TimeZone.getTimeZone("UTC"))
 
 ```
 
