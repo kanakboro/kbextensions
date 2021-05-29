@@ -50,24 +50,29 @@ fun Context.showSnackBar(message: String) {
 fun Any.showLogMessage(tag: String?, type: String) {
     type.takeIf { it.isNotEmpty() }.let { logType ->
         when (logType) {
-            "e" -> Log.e(tag?:"", "" + this)
-            "d" -> Log.d(tag?:"", "" + this)
-            "w" -> Log.w(tag?:"", "" + this)
-            "i" -> Log.i(tag?:"", "" + this)
-            "v" -> Log.v(tag?:"", "" + this)
-            else -> Log.e(tag?:"", "" + this)
+            "e" -> Log.e(tag ?: "", "" + this)
+            "d" -> Log.d(tag ?: "", "" + this)
+            "w" -> Log.w(tag ?: "", "" + this)
+            "i" -> Log.i(tag ?: "", "" + this)
+            "v" -> Log.v(tag ?: "", "" + this)
+            else -> Log.e(tag ?: "", "" + this)
         }
     }
 }
 
 /** This method is useful for showing Alert **/
-fun Context.showAlertDialog(title: String, message: String, positiveButton: String) {
+fun Context.showAlertDialog(
+    title: String,
+    message: String,
+    positiveButton: String,
+    cancelable: Boolean
+) {
 
     Handler(Looper.getMainLooper()).post {
         if (message.isNotEmpty()) {
             val dialogBuilder = AlertDialog.Builder(this)
                 .setMessage(message)
-                .setCancelable(false)
+                .setCancelable(cancelable)
                 .setPositiveButton(
                     positiveButton
                 ) { arg0, _ -> arg0.dismiss() }
@@ -83,34 +88,49 @@ fun Context.showAlertDialog(title: String, message: String, positiveButton: Stri
 }
 
 /** This method will return date in given format **/
-fun getFormattedDate(fromFormat: String, toFormat: String): String {
-    return if (fromFormat.isNotEmpty()) {
-        val formattedDate: Date? =
-            SimpleDateFormat(fromFormat, Locale.getDefault()).parse(fromFormat)
-        SimpleDateFormat(toFormat, Locale.getDefault()).format(formattedDate!!)
-    } else ""
+fun getFormattedDate(
+    fromFormat: String,
+    toFormat: String,
+    locale: Locale,
+    timezone: TimeZone
+): String {
+    return try {
+        if (fromFormat.isNotEmpty() && toFormat.isNotEmpty()) {
+            val sdf = SimpleDateFormat(fromFormat, locale)
+            sdf.timeZone = timezone
+            val formattedDate: Date? = sdf.parse(fromFormat)
+            SimpleDateFormat(toFormat, locale).format(formattedDate!!)
+        } else ""
+    } catch (e: Exception) {
+        e.printStackTrace()
+        ""
+    }
 }
 
 /** It will return date in milliseconds of given time and day
  * pass value for time like this -> 02:00 AM or 02:00 PM
  * pass value for dayOfDate like this -> today = 0 ,yesterday = -1 and tomorrow = +1
  * If param will not match the format it will return milli of current day **/
-fun getConvertedDate(time: String, dayOfDate: Int): Long {
+fun getConvertedDate(
+    time: String, dayOfDate: Int,
+    locale: Locale,
+    timezone: TimeZone
+): Long {
     return try {
         val calender = Calendar.getInstance()
 
         if (dayOfDate > 0)
             calender.add(Calendar.DAY_OF_MONTH, dayOfDate)
 
-        val sdf = SimpleDateFormat("dd-M-yyyy hh:mm a", Locale.US)
-        val parseFormat = SimpleDateFormat("hh:mm a", Locale.US)
+        val sdf = SimpleDateFormat("dd-M-yyyy hh:mm a", locale)
+        sdf.timeZone = timezone
+        val parseFormat = SimpleDateFormat("hh:mm a", locale)
+        parseFormat.timeZone = timezone
+        val parseFormatFinal = SimpleDateFormat("dd-M-yyyy", locale)
+        parseFormatFinal.timeZone = timezone
         val date: Date = parseFormat.parse(time) ?: Date()
-        (sdf.parse(
-            SimpleDateFormat(
-                "dd-M-yyyy",
-                Locale.US
-            ).format(calender.timeInMillis) + " " + parseFormat.format(date)
-        ) ?: Date()).time
+        (sdf.parse(parseFormatFinal.format(calender.timeInMillis) + " " + parseFormat.format(date))
+            ?: Date()).time
     } catch (e: Exception) {
         e.printStackTrace()
         Date().time
@@ -118,11 +138,19 @@ fun getConvertedDate(time: String, dayOfDate: Int): Long {
 }
 
 /** This method will return date in given format from millisecond **/
-fun Long?.getDateFromMilli(format: String): String {
+fun Long?.getDateFromMilli(
+    format: String,
+    locale: Locale,
+    timezone: TimeZone
+): String {
     return try {
-        if (this != null && this > 0)
-            SimpleDateFormat(format, Locale.US).format(this)
-        else ""
+        if (this != null && this > 0) {
+            format.takeIf { it.isNotEmpty() }?.let {
+                val sdf = SimpleDateFormat(it, locale)
+                sdf.timeZone = timezone
+                sdf.format(this)
+            } ?: ""
+        } else ""
     } catch (e: Exception) {
         e.printStackTrace()
         ""
@@ -130,11 +158,19 @@ fun Long?.getDateFromMilli(format: String): String {
 }
 
 /** This method will return date in given format from date **/
-fun Date?.getFormattedDate(format: String): String {
+fun Date?.getFormattedDate(
+    format: String,
+    locale: Locale,
+    timezone: TimeZone
+): String {
     return try {
-        if (this != null)
-            SimpleDateFormat(format, Locale.US).format(this)
-        else ""
+        if (this != null) {
+            format.takeIf { it.isNotEmpty() }?.let {
+                val sdf = SimpleDateFormat(it, locale)
+                sdf.timeZone = timezone
+                sdf.format(this)
+            } ?: ""
+        } else ""
     } catch (e: Exception) {
         e.printStackTrace()
         ""
@@ -201,7 +237,10 @@ fun Activity.hideSoftKeyboard() {
 
 /** This method is useful to show keyboard **/
 fun Context.showKeyBoard(view: View) {
-    (this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).showSoftInput(view, 0)
+    (this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).showSoftInput(
+        view,
+        0
+    )
 }
 
 /** This method is useful to check is given email is valid or not **/
