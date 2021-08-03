@@ -252,3 +252,9 @@ fun String.isValid(regex: String): Boolean {
         .matches()
 }
 
+/** This method is useful to display HTML format data into textview **/
+fun String?.toHtml(): Spanned? {
+    if (this.isNullOrEmpty()) return null
+    return HtmlCompat.fromHtml(this, HtmlCompat.FROM_HTML_MODE_COMPACT)
+}
+
