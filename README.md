@@ -1,4 +1,4 @@
-# KBEXTENSIONS  TAG: 1.1.2
+# KBEXTENSIONS  TAG: 1.1.4
 
 KBEXTENSIONS is an android library which provides an easy way to use collections of common functions and functionalities which we use in every projects and write the same code again and again.
 
