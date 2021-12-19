@@ -35,4 +35,27 @@ public class EmojiFilter {
         return new InputFilter[]{EMOJI_FILTER};
     }
 
+    public static InputFilter[] getFilter(String regex) {
+        InputFilter EMOJI_FILTER = new InputFilter() {
+
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                for (int index = start; index < end; index++) {
+                    try {
+                        int type = Character.getType(source.charAt(index));
+                        if (type == Character.SURROGATE || type == Character.NON_SPACING_MARK || type == Character.OTHER_SYMBOL) {
+                            return "";
+                        } else if (source != null && regex.contains(("" + source.charAt(index)))) {
+                            return ("" + source).subSequence(start, end - 1);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                return null;
+            }
+        };
+        return new InputFilter[]{EMOJI_FILTER};
+    }
+
 }
