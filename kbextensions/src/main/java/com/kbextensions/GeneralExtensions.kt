@@ -98,14 +98,22 @@ fun Context.showSnackBar(message: String) {
 }
 
 /** This method is useful for showing different types of logs **/
-fun Any.showLogMessage(tag: String?, type: String) {
+object LogType {
+    const val LOG_ERROR = "e"
+    const val LOG_DATA = "d"
+    const val LOG_WARN = "w"
+    const val LOG_INFO = "i"
+    const val LOG_VERBOSE = "v"
+}
+
+fun Any.showLogMessage(tag: String = "ApplicationLog", type: String = LogType.LOG_DATA) {
     type.takeIf { it.isNotEmpty() }.let { logType ->
         when (logType) {
-            "e" -> Log.e(tag ?: "", "" + this)
-            "d" -> Log.d(tag ?: "", "" + this)
-            "w" -> Log.w(tag ?: "", "" + this)
-            "i" -> Log.i(tag ?: "", "" + this)
-            "v" -> Log.v(tag ?: "", "" + this)
+            LogType.LOG_ERROR -> Log.e(tag ?: "", "" + this)
+            LogType.LOG_DATA -> Log.d(tag ?: "", "" + this)
+            LogType.LOG_WARN -> Log.w(tag ?: "", "" + this)
+            LogType.LOG_INFO -> Log.i(tag ?: "", "" + this)
+            LogType.LOG_VERBOSE -> Log.v(tag ?: "", "" + this)
             else -> Log.e(tag ?: "", "" + this)
         }
     }
@@ -147,16 +155,16 @@ fun Context.showAlertDialog(
 
 /** This method will return date in given format **/
 fun getFormattedDate(
-    fromFormat: String,
+    currentFormat: String,
     toFormat: String,
     locale: Locale = Locale.US,
-    timezone: TimeZone
+    timezone: TimeZone = TimeZone.getTimeZone("UTC")
 ): String {
     return try {
-        if (fromFormat.isNotEmpty() && toFormat.isNotEmpty()) {
-            val sdf = SimpleDateFormat(fromFormat, locale)
+        if (currentFormat.isNotEmpty() && toFormat.isNotEmpty()) {
+            val sdf = SimpleDateFormat(currentFormat, locale)
             sdf.timeZone = timezone
-            val formattedDate: Date? = sdf.parse(fromFormat)
+            val formattedDate: Date? = sdf.parse(currentFormat)
             SimpleDateFormat(toFormat, locale).format(formattedDate!!)
         } else ""
     } catch (e: Exception) {
@@ -169,10 +177,10 @@ fun getFormattedDate(
  * pass value for time like this -> 02:00 AM or 02:00 PM
  * pass value for dayOfDate like this -> today = 0 ,yesterday = -1 and tomorrow = +1
  * If param will not match the format it will return milli of current day **/
-fun getConvertedDate(
+fun getConvertedDateInMilli(
     time: String, dayOfDate: Int,
     locale: Locale = Locale.US,
-    timezone: TimeZone
+    timezone: TimeZone = TimeZone.getTimeZone("UTC")
 ): Long {
     return try {
         val calender = Calendar.getInstance()
@@ -197,13 +205,13 @@ fun getConvertedDate(
 
 /** This method will return date in given format from millisecond **/
 fun Long?.getDateFromMilli(
-    format: String,
+    toFormat: String,
     locale: Locale = Locale.US,
-    timezone: TimeZone
+    timezone: TimeZone = TimeZone.getTimeZone("UTC")
 ): String {
     return try {
         if (this != null && this > 0) {
-            format.takeIf { it.isNotEmpty() }?.let {
+            toFormat.takeIf { it.isNotEmpty() }?.let {
                 val sdf = SimpleDateFormat(it, locale)
                 sdf.timeZone = timezone
                 sdf.format(this)
@@ -217,13 +225,13 @@ fun Long?.getDateFromMilli(
 
 /** This method will return date in given format from date **/
 fun Date?.getFormattedDate(
-    formatTo: String,
+    toFormat: String,
     locale: Locale = Locale.US,
-    timezone: TimeZone
+    timezone: TimeZone = TimeZone.getTimeZone("UTC")
 ): String {
     return try {
         if (this != null) {
-            formatTo.takeIf { it.isNotEmpty() }?.let {
+            toFormat.takeIf { it.isNotEmpty() }?.let {
                 val sdf = SimpleDateFormat(it, locale)
                 sdf.timeZone = timezone
                 sdf.format(this)
@@ -336,6 +344,13 @@ fun Context.playAnim(view: View, @AnimRes anim: Int) {
     view.startAnimation(AnimationUtils.loadAnimation(this, anim))
 }
 
+/** This method is useful to set animation in views **/
+fun View.preventClickUntil(thresholdTime: Long = 1000) {
+    if (!isClickable) return
+    isClickable = false
+    postDelayed({ isClickable = true }, thresholdTime)
+}
+
 
 /**
  *  KeyBoard Related Functions
@@ -385,13 +400,15 @@ fun String.isValid(regex: String): Boolean {
  */
 
 /** This method is useful to display HTML format data into textview **/
-fun String?.toHtml(): Spanned? {
+fun String?.toHtml(htmlFlagType: Int? = null): Spanned? {
     if (this.isNullOrEmpty()) return null
     return try {
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            Html.fromHtml(this, Html.FROM_HTML_MODE_COMPACT)
+            Html.fromHtml(this, htmlFlagType ?: Html.FROM_HTML_MODE_COMPACT)
         else
             Html.fromHtml(this)
+
     } catch (e: Exception) {
         e.printStackTrace()
         null
